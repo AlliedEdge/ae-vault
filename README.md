@@ -75,7 +75,7 @@ This README covers **v1** (the current build target — see [Quick Start](#-quic
 ## 🏗️ Architecture
 
 <div align="center">
-  <img src="architecture/hld-v1.svg" alt="Ziboto System Architecture" width="100%"/>
+  <img src="docs/architecture/HLD/hld-v1.svg" alt="Ziboto System Architecture" width="100%"/>
 
   *High-Level Architecture: Cloud-native design with microservices-ready structure*
 </div>
