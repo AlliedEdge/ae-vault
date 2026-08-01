@@ -1,210 +1,290 @@
-# AE Vault
+<div align="center">
 
-<p align="center">
-  <strong>A Cloud-Native File Storage Platform</strong>
-</p>
+# 🚀 Ziboto
 
-<p align="center">
-  Secure • Scalable • Dockerized • Cloud Ready
-</p>
+### Cloud-Native File Storage Platform
 
----
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.x-brightgreen.svg)](https://spring.io/projects/spring-boot)
+[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED.svg)](https://www.docker.com/)
+[![AWS](https://img.shields.io/badge/AWS-Deployed-FF9900.svg)](https://aws.amazon.com/)
 
-## Overview
+**Secure** • **Scalable** • **Production-Ready**
 
-AE Vault is a cloud-native file storage platform built with modern backend technologies and cloud-native architecture. It provides secure file management, efficient metadata storage, intelligent caching, and scalable object storage while following production-oriented software engineering practices.
+[Features](#-features) • [Architecture](#-architecture) • [Quick Start](#-quick-start) • [Roadmap](#-roadmap)
 
-The project is designed to demonstrate backend engineering, cloud deployment, containerization, caching strategies, and scalable system design.
-
----
-
-## Features
-
-- Secure User Authentication
-- Folder Management
-- File Upload & Download
-- Metadata Management
-- Redis-Based Caching
-- PostgreSQL Persistence
-- AWS S3 Object Storage
-- Dockerized Deployment
-- Nginx Reverse Proxy
-- Cloud Deployment on AWS EC2
+</div>
 
 ---
 
-## Architecture
+## 📖 Overview
 
-<p align="center">
-  <img src="architecture/hld-v1.svg" alt="AE Vault Architecture" width="1000"/>
-</p>
+**Ziboto** is a modern, cloud-native file storage platform engineered with enterprise-grade backend technologies and cloud-first architecture. Built to showcase professional software engineering practices, Ziboto delivers secure file management, intelligent caching, scalable object storage, and robust metadata persistence.
 
----
+### Why Ziboto?
 
-## Technology Stack
-
-### Frontend
-
-- React
-- React Query
-- Axios
-
-### Backend
-
-- Spring Boot
-- Spring Security
-- Spring Data JPA
-- REST APIs
-
-### Database
-
-- PostgreSQL
-- Redis
-
-### Cloud
-
-- AWS EC2
-- AWS S3
-
-### Infrastructure
-
-- Docker
-- Docker Compose
-- Nginx
+- **Production-Ready Architecture** – Designed with scalability and reliability in mind
+- **Cloud-Native Design** – Built for AWS with containerized deployment
+- **Modern Tech Stack** – Leveraging Spring Boot, React, PostgreSQL, Redis, and AWS S3
+- **Developer-Friendly** – Fully dockerized for seamless local development and deployment
 
 ---
 
-## Project Structure
+## ✨ Features
+
+<table>
+<tr>
+<td width="50%">
+
+### 🔐 Security & Authentication
+- JWT-based user authentication
+- Role-based access control (planned)
+- Secure file access management
+
+### 📁 File Management
+- Hierarchical folder structure
+- Multi-file upload support
+- Fast download with streaming
+- Metadata tracking and search
+
+</td>
+<td width="50%">
+
+### ⚡ Performance & Scale
+- Redis-based intelligent caching
+- PostgreSQL for reliable persistence
+- AWS S3 for scalable object storage
+- Optimized query performance
+
+### 🐳 DevOps Ready
+- Fully containerized with Docker
+- Docker Compose orchestration
+- Nginx reverse proxy
+- AWS EC2 cloud deployment
+
+</td>
+</tr>
+</table>
+
+---
+
+## 🏗️ Architecture
+
+<div align="center">
+  <img src="architecture/hld-v1.svg" alt="Ziboto System Architecture" width="100%"/>
+  
+  *High-Level Architecture: Cloud-native design with microservices-ready structure*
+</div>
+
+### Architecture Highlights
+
+- **Frontend Layer**: React SPA with optimistic UI updates via React Query
+- **API Gateway**: Nginx reverse proxy for load balancing and SSL termination
+- **Application Layer**: Spring Boot REST APIs with JWT authentication
+- **Cache Layer**: Redis for session management and frequently accessed data
+- **Persistence Layer**: PostgreSQL for metadata and relational data
+- **Storage Layer**: AWS S3 for scalable object storage
+
+---
+
+## 🛠️ Technology Stack
+
+<div align="center">
+
+| Layer | Technologies |
+|-------|-------------|
+| **Frontend** | React • React Query • Axios • Modern UI |
+| **Backend** | Spring Boot 3.x • Spring Security • Spring Data JPA • RESTful APIs |
+| **Database** | PostgreSQL 15+ • Redis 7+ |
+| **Cloud** | AWS EC2 • AWS S3 • AWS VPC |
+| **DevOps** | Docker • Docker Compose • Nginx • Git |
+
+</div>
+
+---
+
+## 📂 Project Structure
 
 ```text
-ae-vault/
+ziboto/
 │
-├── architecture/
+├── architecture/          # System architecture diagrams and docs
+│   └── hld-v1.svg
 │
-├── backend/
+├── backend/              # Spring Boot application
+│   ├── src/
+│   └── pom.xml
 │
-├── frontend/
+├── frontend/             # React application
+│   ├── src/
+│   └── package.json
 │
-├── docker/
+├── docker/               # Docker configurations
+│   ├── backend.Dockerfile
+│   ├── frontend.Dockerfile
+│   └── nginx.conf
 │
-├── docker-compose.yml
-│
-└── README.md
+├── docker-compose.yml    # Multi-container orchestration
+└── README.md            # This file
 ```
 
 ---
 
-## Deployment Overview
+## 🚀 Quick Start
 
-- React communicates with the backend through Nginx.
-- Nginx acts as a reverse proxy.
-- Spring Boot handles business logic and API requests.
-- PostgreSQL stores application metadata.
-- Redis caches frequently accessed data.
-- AWS S3 stores uploaded files.
-- Docker containers are deployed on a single AWS EC2 instance.
+### Prerequisites
 
----
+- Docker Engine 20.10+
+- Docker Compose 2.0+
+- Git
 
-## Getting Started
+### Installation
 
-### Clone the repository
+1️⃣ **Clone the repository**
 
 ```bash
-git clone https://github.com/AlliedEdge/ae-vault.git
+git clone https://github.com/yourusername/ziboto.git
+cd ziboto
 ```
+
+2️⃣ **Configure environment variables**
 
 ```bash
-cd ae-vault
+# Create .env file with your AWS credentials
+cp .env.example .env
+# Edit .env with your configuration
 ```
 
----
-
-### Start the application
+3️⃣ **Launch the application**
 
 ```bash
 docker compose up --build
 ```
 
----
+4️⃣ **Access Ziboto**
 
-## Roadmap
+- **Frontend**: http://localhost
+- **Backend API**: http://localhost/api
+- **API Docs**: http://localhost/api/swagger-ui.html
 
-### Version 1
-
-- [ ] User Authentication
-- [ ] Folder Management
-- [ ] File Upload
-- [ ] File Download
-- [ ] AWS S3 Integration
-- [ ] Redis Caching
-- [ ] Docker Deployment
-- [ ] Nginx Reverse Proxy
-
-### Future Releases
-
-- [ ] File Sharing
-- [ ] Role-Based Access Control
-- [ ] File Versioning
-- [ ] Search
-- [ ] Email Verification
-- [ ] Audit Logs
-- [ ] Monitoring & Metrics
-- [ ] Kubernetes Deployment
-
----
-
-## Contributing
-
-Contributions are welcome.
-
-If you'd like to contribute:
-
-1. Fork the repository.
-2. Create a feature branch.
+### Development Mode
 
 ```bash
-git checkout -b feature/your-feature-name
+# Start backend only
+docker compose up backend postgres redis
+
+# Start frontend in dev mode (in another terminal)
+cd frontend && npm run dev
 ```
 
-3. Commit your changes.
+---
+
+## 🗺️ Roadmap
+
+### 🎯 Version 1.0 (Current Sprint)
+
+- [x] Project architecture and setup
+- [ ] User authentication & JWT integration
+- [ ] Folder hierarchy management
+- [ ] File upload with chunking
+- [ ] File download with streaming
+- [ ] AWS S3 integration
+- [ ] Redis caching layer
+- [ ] Docker multi-container deployment
+- [ ] Nginx reverse proxy configuration
+
+### 🔮 Version 2.0 (Future Enhancements)
+
+- [ ] File sharing with expirable links
+- [ ] Role-based access control (RBAC)
+- [ ] File versioning and history
+- [ ] Full-text search with Elasticsearch
+- [ ] Email verification workflow
+- [ ] Comprehensive audit logging
+- [ ] Prometheus metrics & Grafana dashboards
+- [ ] Kubernetes deployment with Helm charts
+- [ ] CI/CD pipeline with GitHub Actions
+
+### 💡 Ideas for Contribution
+
+- Real-time collaboration features
+- Mobile app (React Native)
+- File preview for common formats
+- Automatic virus scanning
+- Multi-region replication
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions from the community! Whether you're fixing bugs, improving documentation, or proposing new features, your input is valuable.
+
+### How to Contribute
+
+1. **Fork the repository** and create your branch from `main`
 
 ```bash
-git commit -m "Add your feature"
+git checkout -b feature/amazing-feature
 ```
 
-4. Push to your fork.
+2. **Make your changes** and commit with descriptive messages
 
 ```bash
-git push origin feature/your-feature-name
+git commit -m "feat: add amazing new feature"
 ```
 
-5. Open a Pull Request.
+3. **Push to your fork**
 
-Please ensure that:
+```bash
+git push origin feature/amazing-feature
+```
 
-- Code follows the project's coding standards.
-- Changes are documented where appropriate.
-- Pull Requests are focused and descriptive.
+4. **Open a Pull Request** with a clear description of changes
 
----
+### Contribution Guidelines
 
-## Issues
-
-Found a bug?
-
-Have a feature request?
-
-Please open an Issue describing the problem or enhancement.
+- ✅ Follow existing code style and conventions
+- ✅ Write clear commit messages (use [Conventional Commits](https://www.conventionalcommits.org/))
+- ✅ Add tests for new features
+- ✅ Update documentation as needed
+- ✅ Keep PRs focused and atomic
 
 ---
 
-## License
+## 🐛 Issues & Support
 
-This project is licensed under the MIT License.
+Encountered a bug? Have a feature request? We'd love to hear from you!
+
+- **Bug Reports**: [Open an issue](https://github.com/yourusername/ziboto/issues/new?template=bug_report.md)
+- **Feature Requests**: [Request a feature](https://github.com/yourusername/ziboto/issues/new?template=feature_request.md)
+- **Questions**: Check existing [discussions](https://github.com/yourusername/ziboto/discussions) or start a new one
 
 ---
 
-<p align="center">
-Built with Spring Boot, Docker, Redis, PostgreSQL, Nginx, and AWS.
-</p>
+## 📄 License
+
+This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 🙏 Acknowledgments
+
+Built with powerful open-source technologies:
+- [Spring Boot](https://spring.io/projects/spring-boot) - Application framework
+- [React](https://react.dev/) - Frontend library
+- [PostgreSQL](https://www.postgresql.org/) - Database
+- [Redis](https://redis.io/) - Caching layer
+- [Docker](https://www.docker.com/) - Containerization
+- [AWS](https://aws.amazon.com/) - Cloud infrastructure
+
+---
+
+<div align="center">
+
+**⭐ Star this repo if you find it helpful!**
+
+Made with ❤️ by the Ziboto team
+
+[Report Bug](https://github.com/yourusername/ziboto/issues) • [Request Feature](https://github.com/yourusername/ziboto/issues) • [Documentation](https://github.com/yourusername/ziboto/wiki)
+
+</div>
