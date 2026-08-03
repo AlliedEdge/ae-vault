@@ -1,6 +1,8 @@
 <div align="center">
 
-# 🚀 Ziboto
+<img src="assets/branding/logo.svg" alt="Ziboto Logo" width="200"/>
+
+# Ziboto
 
 ### A Production-Grade Cloud-Native Distributed Object Storage Platform
 
@@ -12,6 +14,8 @@
 [![AWS](https://img.shields.io/badge/AWS-Deployed-FF9900.svg)](https://aws.amazon.com/)
 
 [Features](#-features) • [Architecture](#-architecture) • [Quick Start](#-quick-start) • [Full Spec](#-full-platform-spec) • [Roadmap](#️-roadmap)
+
+</div>res](#-features) • [Architecture](#-architecture) • [Quick Start](#-quick-start) • [Full Spec](#-full-platform-spec) • [Roadmap](#️-roadmap)
 
 </div>
 
