@@ -1,0 +1,25 @@
+spring:
+  jpa:
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+
+server:
+  error:
+    include-stacktrace: never
+    include-exception: false
+
+logging:
+  level:
+    root: WARN
+    com.ziboto: INFO
+    org.springframework.web: WARN
+    org.springframework.security: WARN
+    org.hibernate.SQL: WARN
+
+springdoc:
+  swagger-ui:
+    enabled: false
+  api-docs:
+    enabled: false

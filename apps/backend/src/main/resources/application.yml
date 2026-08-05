@@ -1,0 +1,209 @@
+spring:
+  application:
+    name: ziboto-backend
+  
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+  
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5433/ziboto}
+    username: ${DATABASE_USERNAME:ziboto}
+    password: ${DATABASE_PASSWORD:ziboto123}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: ${DATABASE_POOL_SIZE:10}
+      minimum-idle: 5
+      connection-timeout: 20000
+      idle-timeout: 300000
+      max-lifetime: 1200000
+  
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        use_sql_comments: true
+        jdbc:
+          batch_size: 20
+        order_inserts: true
+        order_updates: true
+    open-in-view: false
+  
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+    validate-on-migrate: true
+  
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6380}
+      password: ${REDIS_PASSWORD:}
+      database: ${REDIS_DATABASE:0}
+      timeout: 60000
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 2
+          max-wait: -1ms
+  
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: ${MAX_FILE_SIZE:100MB}
+      max-request-size: ${MAX_REQUEST_SIZE:100MB}
+
+server:
+  port: ${SERVER_PORT:8080}
+  error:
+    include-message: always
+    include-binding-errors: always
+    include-stacktrace: on_param
+    include-exception: false
+  compression:
+    enabled: true
+    mime-types: text/html,text/xml,text/plain,text/css,text/javascript,application/javascript,application/json
+    min-response-size: 1024
+  # Security headers configuration
+  servlet:
+    session:
+      timeout: 30m
+      cookie:
+        http-only: true
+        secure: true
+        same-site: strict
+
+# Application Configuration
+app:
+  security:
+    jwt:
+      secret: ${JWT_SECRET}
+      expiration: ${JWT_EXPIRATION:900000} # 15 minutes in milliseconds (900000ms = 15min)
+      refresh-expiration: ${JWT_REFRESH_EXPIRATION:604800000} # 7 days in milliseconds (604800000ms = 7d)
+    cors:
+      allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}
+      allowed-methods: GET,POST,PUT,PATCH,DELETE,OPTIONS
+      allowed-headers: "*"
+      allow-credentials: true
+      max-age: 3600
+  
+  storage:
+    type: ${STORAGE_TYPE:local} # local, s3, azure, gcs
+    local:
+      base-path: ${STORAGE_LOCAL_PATH:/var/ziboto/storage}
+    s3:
+      bucket: ${STORAGE_S3_BUCKET:}
+      region: ${STORAGE_S3_REGION:}
+      access-key: ${STORAGE_S3_ACCESS_KEY:}
+      secret-key: ${STORAGE_S3_SECRET_KEY:}
+  
+  cache:
+    ttl: ${CACHE_TTL:3600} # 1 hour in seconds
+    prefix: "ziboto"
+  
+  # Redis Configuration
+  redis:
+    # Rate Limiting Configuration
+    rate-limit:
+      login:
+        max-attempts: ${REDIS_RATE_LIMIT_LOGIN_MAX:5}
+        window-minutes: ${REDIS_RATE_LIMIT_LOGIN_WINDOW:15}
+      signup:
+        max-attempts: ${REDIS_RATE_LIMIT_SIGNUP_MAX:3}
+        window-minutes: ${REDIS_RATE_LIMIT_SIGNUP_WINDOW:60}
+      api:
+        max-requests: ${REDIS_RATE_LIMIT_API_MAX:100}
+        window-minutes: ${REDIS_RATE_LIMIT_API_WINDOW:1}
+      refresh:
+        max-attempts: ${REDIS_RATE_LIMIT_REFRESH_MAX:10}
+        window-hours: ${REDIS_RATE_LIMIT_REFRESH_WINDOW:1}
+    
+    # Failed Login Tracking Configuration
+    failed-login:
+      max-attempts: ${REDIS_FAILED_LOGIN_MAX:5}
+      lockout-minutes: ${REDIS_FAILED_LOGIN_LOCKOUT:30}
+      tracking-hours: ${REDIS_FAILED_LOGIN_TRACKING:1}
+    
+    # Session Cache Configuration
+    session:
+      ttl-hours: ${REDIS_SESSION_TTL:1}
+      extended-ttl-hours: ${REDIS_SESSION_EXTENDED_TTL:24}
+      sliding-window: ${REDIS_SESSION_SLIDING_WINDOW:true}
+      max-concurrent-sessions: ${REDIS_SESSION_MAX_CONCURRENT:0} # 0 = unlimited
+    
+    # Token Blacklist Configuration
+    token-blacklist:
+      enabled: ${REDIS_TOKEN_BLACKLIST_ENABLED:true}
+      max-ttl-days: ${REDIS_TOKEN_BLACKLIST_MAX_TTL:7}
+    
+    # OTP Configuration
+    otp:
+      ttl-minutes: ${REDIS_OTP_TTL:5}
+      max-attempts: ${REDIS_OTP_MAX_ATTEMPTS:3}
+      rate-limit-minutes: ${REDIS_OTP_RATE_LIMIT:15}
+      max-verification-attempts: ${REDIS_OTP_MAX_VERIFY:3}
+    
+    # Key Prefixes for namespace isolation
+    key-prefix:
+      rate-limit: "rate_limit"
+      failed-login: "failed_login"
+      session: "session"
+      token-blacklist: "token:blacklist"
+      otp: "otp"
+
+# Actuator Configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: when-authorized
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
+# Logging Configuration
+logging:
+  level:
+    root: INFO
+    com.ziboto: ${LOG_LEVEL:DEBUG}
+    com.ziboto.backend.security: INFO
+    com.ziboto.backend.audit: INFO
+    com.ziboto.backend.auth: DEBUG
+    org.springframework.web: INFO
+    org.springframework.security: INFO
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+  pattern:
+    console: "%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}"
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: ${LOG_FILE:logs/ziboto.log}
+    max-size: ${LOG_FILE_MAX_SIZE:10MB}
+    max-history: ${LOG_FILE_MAX_HISTORY:30}
+  logback:
+    rollingpolicy:
+      max-file-size: 10MB
+      max-history: 30
+      total-size-cap: 1GB
+
+# OpenAPI Configuration
+springdoc:
+  api-docs:
+    path: /api-docs
+    enabled: true
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+    operations-sorter: method
+    tags-sorter: alpha
+  show-actuator: false

@@ -1,0 +1,76 @@
+services:
+  postgres:
+    image: postgres:17
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB: ziboto
+      POSTGRES_USER: ziboto
+      POSTGRES_PASSWORD: ziboto123
+
+    ports:
+      - "5433:5432"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ziboto"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+    networks:
+      - ziboto-network
+
+  redis:
+    image: redis:7.4
+    restart: unless-stopped
+    ports:
+    - "6380:6379"
+    command: redis-server --appendonly yes
+
+
+    volumes:
+      - redis_data:/data
+
+    networks:
+      - ziboto-network
+
+  pgadmin:
+    image: dpage/pgadmin4
+    restart: unless-stopped
+
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@ziboto.com
+      PGADMIN_DEFAULT_PASSWORD: admin123
+
+    ports:
+      - "5050:80"
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+    networks:
+      - ziboto-network
+
+  redisinsight:
+    image: redis/redisinsight
+    restart: unless-stopped
+
+    ports:
+      - "5540:5540"
+
+    depends_on:
+      - redis
+
+    networks:
+      - ziboto-network
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  ziboto-network:
