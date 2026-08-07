@@ -159,10 +159,16 @@ const FileManager = () => {
 
       console.log('[FileManager] Upload successful:', response.data);
       
-      await loadFiles();
-      loadStorageInfo();
+      // Optimistically update storage used (add file size)
+      setStorageUsed(prev => prev + file.size);
       
-      alert('File uploaded successfully!');
+      // Update file list and storage info immediately
+      await Promise.all([
+        loadFiles(),
+        loadStorageInfo()
+      ]);
+      
+      console.log('[FileManager] File uploaded successfully, storage updated');
     } catch (error: any) {
       console.error('[FileManager] Upload failed:', error);
       console.error('[FileManager] Error response:', error.response?.data);
@@ -207,11 +213,28 @@ const FileManager = () => {
     if (!confirm('Are you sure you want to delete this file?')) return;
 
     try {
+      // Find the file to get its size for optimistic update
+      const fileToDelete = files.find(f => f.fileId === fileId);
+      
       await axiosInstance.delete(`/files/${fileId}`);
-      await loadFiles();
-      loadStorageInfo();
+      
+      // Optimistically update storage used (subtract file size)
+      if (fileToDelete) {
+        setStorageUsed(prev => Math.max(0, prev - fileToDelete.fileSize));
+      }
+      
+      // Update file list and storage info immediately
+      await Promise.all([
+        loadFiles(),
+        loadStorageInfo()
+      ]);
+      
+      console.log('[FileManager] File deleted and storage updated');
     } catch (error) {
       alert('Delete failed');
+      console.error('[FileManager] Delete failed:', error);
+      // Revert optimistic update by reloading storage info
+      loadStorageInfo();
     }
   };
 
@@ -378,9 +401,8 @@ const FileManager = () => {
 
               <div className="w-full h-2 bg-dark-800 rounded-full overflow-hidden">
                 <motion.div
-                  initial={{ width: 0 }}
                   animate={{ width: `${storagePercentage}%` }}
-                  transition={{ duration: 1, ease: 'easeOut' }}
+                  transition={{ duration: 0.5, ease: 'easeInOut' }}
                   className={`h-full rounded-full ${
                     storagePercentage > 90
                       ? 'bg-red-500'
