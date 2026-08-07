@@ -3,6 +3,7 @@ import Logo from '../components/ui/Logo';
 import Button from '../components/ui/Button';
 import Card from '../components/ui/Card';
 import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import { 
   LogOut, 
   User as UserIcon, 
@@ -10,7 +11,8 @@ import {
   File, 
   Users,
   Clock,
-  Folder
+  Folder,
+  FolderOpen,
 } from 'lucide-react';
 import type { InitializationData } from '../services/appInitService';
 
@@ -24,6 +26,7 @@ interface DashboardProps {
  */
 const Dashboard: React.FC<DashboardProps> = ({ initData }) => {
   const { logout } = useAuth();
+  const navigate = useNavigate();
   const { user, storageQuota, recentFiles, workspace } = initData;
 
   const handleLogout = async () => {
@@ -120,6 +123,38 @@ const Dashboard: React.FC<DashboardProps> = ({ initData }) => {
           <p className="text-dark-300 text-lg">
             Here's what's happening in your workspace
           </p>
+        </motion.div>
+
+        {/* Quick Actions */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+        >
+          <Card className="bg-gradient-to-r from-primary-600/20 to-primary-700/20 border-primary-500/30">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="w-14 h-14 rounded-full bg-primary-500/20 flex items-center justify-center">
+                  <FolderOpen className="w-7 h-7 text-primary-400" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-semibold text-white">Manage Your Files</h3>
+                  <p className="text-dark-300 text-sm mt-1">
+                    Upload, organize, and share your documents
+                  </p>
+                </div>
+              </div>
+              <Button
+                variant="primary"
+                size="lg"
+                onClick={() => navigate('/files')}
+                className="gap-2"
+              >
+                <Folder className="w-5 h-5" />
+                Open File Manager
+              </Button>
+            </div>
+          </Card>
         </motion.div>
 
         {/* Stats Grid */}

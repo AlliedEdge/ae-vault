@@ -7,3 +7,4 @@ export { default as EmailVerificationSuccess } from './EmailVerificationSuccess'
 export { default as SessionExpired } from './SessionExpired';
 export { default as Dashboard } from './Dashboard';
 export { default as InitializingApp } from './InitializingApp';
+export { default as FileManager } from './FileManager';

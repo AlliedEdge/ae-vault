@@ -20,8 +20,16 @@ axiosInstance.interceptors.request.use(
   (config) => {
     const token = tokenService.getAccessToken();
     
+    console.log('[Axios Request]', {
+      url: config.url,
+      hasToken: !!token,
+      tokenLength: token?.length || 0,
+    });
+    
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+    } else {
+      console.warn('[Axios Request] No access token available for:', config.url);
     }
     
     return config;
@@ -140,7 +148,14 @@ axiosInstance.interceptors.response.use(
         }
       );
 
-      const { accessToken, refreshToken: newRefreshToken } = response.data;
+      // Backend returns ApiResponse<RefreshTokenResponseDto>, so unwrap it
+      const tokenData = response.data.data || response.data;
+      const { accessToken, refreshToken: newRefreshToken } = tokenData;
+
+      if (!accessToken) {
+        console.error('[Axios] No access token in refresh response:', response.data);
+        throw new Error('No access token received from refresh endpoint');
+      }
 
       // Store new tokens
       tokenService.setTokens(accessToken, newRefreshToken || refreshToken);

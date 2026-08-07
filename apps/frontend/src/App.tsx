@@ -10,6 +10,7 @@ import {
   EmailVerificationSuccess,
   SessionExpired,
   InitializingApp,
+  FileManager,
 } from './pages';
 
 function App() {
@@ -37,12 +38,22 @@ function App() {
             }
           />
 
-          {/* Root redirects to initialization if authenticated, otherwise to login */}
+          {/* Protected route - File Manager */}
+          <Route
+            path="/files"
+            element={
+              <ProtectedRoute>
+                <FileManager />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Root redirects to File Manager if authenticated, otherwise to login */}
           <Route
             path="/"
             element={
               <ProtectedRoute>
-                <Navigate to="/initializing" replace />
+                <Navigate to="/files" replace />
               </ProtectedRoute>
             }
           />

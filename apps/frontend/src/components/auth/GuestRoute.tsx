@@ -27,7 +27,7 @@ interface GuestRouteProps {
  */
 export const GuestRoute: React.FC<GuestRouteProps> = ({ 
   children, 
-  redirectTo = '/initializing' 
+  redirectTo = '/files' 
 }) => {
   const { isAuthenticated, isLoading } = useAuth();
   const location = useLocation();

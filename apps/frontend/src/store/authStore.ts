@@ -68,6 +68,14 @@ export const useAuthStore = create<AuthState>()(
           try {
             const response = await authService.login(credentials);
 
+            console.log('[AuthStore] Login response:', {
+              hasUser: !!response.user,
+              hasAccessToken: !!response.accessToken,
+              hasRefreshToken: !!response.refreshToken,
+              accessTokenLength: response.accessToken?.length || 0,
+              refreshTokenLength: response.refreshToken?.length || 0,
+            });
+
             // Store tokens
             tokenService.setTokens(response.accessToken, response.refreshToken);
 
@@ -216,21 +224,54 @@ export const useAuthStore = create<AuthState>()(
           });
 
           try {
-            // Check if we have valid tokens
-            if (tokenService.hasValidTokens()) {
-              // Get user profile
-              const user = await authService.getProfile();
-              
+            const hasAccessToken = !!tokenService.getAccessToken();
+            const hasRefreshToken = tokenService.hasRefreshToken();
+            
+            console.log('[AuthStore] checkAuth - hasAccessToken:', hasAccessToken, 'hasRefreshToken:', hasRefreshToken);
+            
+            // If we have refresh token but no access token, the useTokenRefresh hook will restore it
+            // So we mark as initialized and let the hook handle the restoration
+            if (!hasAccessToken && hasRefreshToken) {
+              console.log('[AuthStore] Has refresh token but no access token - letting useTokenRefresh restore session');
               set({
-                user,
-                isAuthenticated: true,
+                user: null,
+                isAuthenticated: false,
                 isLoading: false,
                 error: null,
                 isInitialized: true,
                 loadingStates: { ...get().loadingStates, profile: false },
               });
+              return;
+            }
+            
+            // If we have access token, try to get user profile
+            if (hasAccessToken) {
+              try {
+                const user = await authService.getProfile();
+                
+                set({
+                  user,
+                  isAuthenticated: true,
+                  isLoading: false,
+                  error: null,
+                  isInitialized: true,
+                  loadingStates: { ...get().loadingStates, profile: false },
+                });
+              } catch (error: any) {
+                console.error('[AuthStore] Failed to get profile, will try token refresh:', error);
+                
+                // Don't clear tokens - let useTokenRefresh handle it
+                set({
+                  user: null,
+                  isAuthenticated: false,
+                  isLoading: false,
+                  error: null,
+                  isInitialized: true,
+                  loadingStates: { ...get().loadingStates, profile: false },
+                });
+              }
             } else {
-              // No valid tokens, clear everything
+              // No tokens at all
               tokenService.clearTokens();
               
               set({
@@ -244,9 +285,6 @@ export const useAuthStore = create<AuthState>()(
             }
           } catch (error: any) {
             console.error('Check auth error:', error);
-            
-            // Clear tokens on error
-            tokenService.clearTokens();
             
             set({
               user: null,
