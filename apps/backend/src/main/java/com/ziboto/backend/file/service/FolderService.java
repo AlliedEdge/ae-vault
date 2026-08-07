@@ -8,6 +8,7 @@ import com.ziboto.backend.file.entity.FileMetadata;
 import com.ziboto.backend.file.entity.Folder;
 import com.ziboto.backend.file.repository.FileMetadataRepository;
 import com.ziboto.backend.file.repository.FolderRepository;
+import com.ziboto.backend.user.service.StorageUsageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -28,6 +29,7 @@ public class FolderService {
     private final FolderRepository folderRepository;
     private final FileMetadataRepository fileMetadataRepository;
     private final StorageService storageService;
+    private final StorageUsageService storageUsageService;
     
     private static final int MAX_FOLDER_DEPTH = 10;
     
@@ -74,7 +76,10 @@ public class FolderService {
         // 5. Save to database
         folderRepository.save(folder);
         
-        log.info("Folder created successfully - folderId: {}, path: {}", 
+        // 6. Invalidate storage cache (folder count changed)
+        storageUsageService.invalidateCache(userId);
+        
+        log.info("Folder created successfully - folderId: {}, path: {} (cache invalidated)", 
                  folder.getId(), folder.getFolderPath());
         
         return buildFolderResponse(folder);
@@ -148,7 +153,10 @@ public class FolderService {
         // 5. Delete folder
         folderRepository.delete(folder);
         
-        log.info("Folder deleted successfully - folderId: {}, subfolders: {}", 
+        // 6. Invalidate storage cache (folder count changed)
+        storageUsageService.invalidateCache(userId);
+        
+        log.info("Folder deleted successfully - folderId: {}, subfolders: {} (cache invalidated)", 
                  folderId, subfolders.size());
     }
     

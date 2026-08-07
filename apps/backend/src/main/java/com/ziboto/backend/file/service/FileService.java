@@ -10,6 +10,7 @@ import com.ziboto.backend.file.repository.FileMetadataRepository;
 import com.ziboto.backend.file.repository.FolderRepository;
 import com.ziboto.backend.user.entity.User;
 import com.ziboto.backend.user.repository.UserRepository;
+import com.ziboto.backend.user.service.StorageUsageService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -44,6 +45,7 @@ public class FileService {
     private final FolderRepository folderRepository;
     private final UserRepository userRepository;
     private final StorageService storageService;
+    private final StorageUsageService storageUsageService;
     
     @Value("${app.storage.local.base-path:/var/ziboto/storage}")
     private String storagePath;
@@ -341,7 +343,10 @@ public class FileService {
         user.setStorageUsed(user.getStorageUsed() + sizeChange);
         userRepository.save(user);
         
-        log.debug("Updated storage for user {}: {} bytes", userId, sizeChange);
+        // Invalidate storage cache to reflect changes immediately
+        storageUsageService.invalidateCache(userId);
+        
+        log.debug("Updated storage for user {}: {} bytes (cache invalidated)", userId, sizeChange);
     }
     
     /**
