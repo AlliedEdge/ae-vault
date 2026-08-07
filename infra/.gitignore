@@ -1,0 +1,108 @@
+# ============================================
+# Infrastructure - Ziboto
+# ============================================
+
+# ============================================
+# Terraform
+# ============================================
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+*.tfstate.backup
+*.tfvars
+!example.tfvars
+!terraform.tfvars.example
+.terraformrc
+terraform.rc
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# ============================================
+# Kubernetes
+# ============================================
+kubeconfig
+.kube/config
+*.kubeconfig
+secrets.yaml
+secrets.yml
+!*-template.yaml
+!*-example.yaml
+
+# ============================================
+# Helm
+# ============================================
+*.tgz
+charts/*/charts/
+
+# ============================================
+# Docker Runtime
+# ============================================
+docker-data/
+docker-volumes/
+*.tar
+docker-compose.override.yml
+!docker-compose.override.yml.example
+
+# Keep Docker configs
+!Dockerfile
+!Dockerfile.*
+!docker-compose*.yml
+!.dockerignore
+
+# ============================================
+# Ansible
+# ============================================
+*.retry
+.vault-password
+vault-password.txt
+!vault-password.txt.example
+
+# ============================================
+# Environment & Secrets
+# ============================================
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.crt
+*.csr
+service-account*.json
+credentials*.json
+!credentials-template.json
+
+# ============================================
+# Monitoring & Logging
+# ============================================
+# Prometheus
+prometheus-data/
+
+# Grafana
+grafana-data/
+grafana.db
+
+# ELK Stack
+elasticsearch-data/
+logstash-data/
+kibana-data/
+
+# ============================================
+# Temporary Files
+# ============================================
+*.tmp
+*.temp
+*.log
+*.bak
+*.backup
+
+# ============================================
+# Operating System
+# ============================================
+.DS_Store
+Thumbs.db
+Desktop.ini
