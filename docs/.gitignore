@@ -1,0 +1,63 @@
+# ============================================
+# Documentation - Ziboto
+# ============================================
+
+# ============================================
+# Generated Documentation
+# ============================================
+# Keep source documentation, ignore generated
+_build/
+_site/
+.docusaurus/
+.cache-loader/
+build/
+dist/
+
+# API Documentation Generated
+swagger-ui/
+redoc-static/
+openapi-generated/
+
+# JavaDoc / ScalaDoc
+target/site/
+javadoc/
+
+# Python Sphinx
+_build/
+_static/
+_templates/
+
+# MkDocs
+site/
+
+# VuePress
+.vuepress/dist/
+.temp/
+
+# Docusaurus
+.docusaurus/
+build/
+
+# ============================================
+# Temporary Files
+# ============================================
+*.tmp
+*.temp
+*.bak
+*.backup
+*~
+
+# ============================================
+# Operating System
+# ============================================
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# ============================================
+# IDEs
+# ============================================
+.idea/
+.vscode/
+*.swp
+*.swo
