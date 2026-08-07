@@ -38,20 +38,41 @@ export const useTokenRefresh = () => {
       return false;
     }
 
+    console.log('[useTokenRefresh] Starting token refresh with token:', refreshToken.substring(0, 30) + '...');
+
     try {
       isRefreshingRef.current = true;
       console.log('[useTokenRefresh] Refreshing access token...');
       
       const response = await authService.refreshToken(refreshToken);
       
+      console.log('[useTokenRefresh] Refresh response received:', {
+        hasAccessToken: !!response.accessToken,
+        hasRefreshToken: !!response.refreshToken,
+        accessTokenPreview: response.accessToken?.substring(0, 20) + '...',
+        refreshTokenPreview: response.refreshToken?.substring(0, 20) + '...',
+      });
+      
       // Update tokens (only access token if backend doesn't rotate refresh token)
       if (response.refreshToken) {
+        console.log('[useTokenRefresh] Storing NEW access token and NEW refresh token');
         tokenService.setTokens(response.accessToken, response.refreshToken);
       } else {
+        console.log('[useTokenRefresh] Storing NEW access token, keeping OLD refresh token');
         tokenService.setAccessToken(response.accessToken);
       }
       
-      console.log('[useTokenRefresh] Token refresh successful');
+      // Fetch full user profile after token refresh to update auth state
+      try {
+        const user = await authService.getProfile();
+        setUser(user);
+        console.log('[useTokenRefresh] Token refresh successful, user profile loaded');
+      } catch (profileError) {
+        console.error('[useTokenRefresh] Failed to load user profile after token refresh:', profileError);
+        // Token refresh was successful but profile fetch failed
+        // We'll still return true since the token is valid
+      }
+      
       return true;
     } catch (error) {
       console.error('[useTokenRefresh] Token refresh failed:', error);
@@ -107,17 +128,23 @@ export const useTokenRefresh = () => {
       const hasAccessToken = !!tokenService.getAccessToken();
       const hasRefreshToken = tokenService.hasRefreshToken();
 
+      console.log('[useTokenRefresh] Restore session check:', { hasAccessToken, hasRefreshToken });
+
       // If we have refresh token but no access token, restore session
       if (!hasAccessToken && hasRefreshToken) {
         console.log('[useTokenRefresh] Access token missing, restoring session...');
         const success = await refreshAccessToken();
         
         if (success) {
+          // refreshAccessToken already loads the user profile
           setupRefreshTimer();
         }
       } else if (hasAccessToken && hasRefreshToken) {
         // If we have both tokens, just setup the refresh timer
+        console.log('[useTokenRefresh] Both tokens present, setting up refresh timer');
         setupRefreshTimer();
+      } else {
+        console.log('[useTokenRefresh] No valid tokens, skipping session restoration');
       }
     };
 
@@ -129,7 +156,7 @@ export const useTokenRefresh = () => {
         clearTimeout(refreshTimerRef.current);
       }
     };
-  }, [refreshAccessToken, setupRefreshTimer]);
+  }, [refreshAccessToken, setupRefreshTimer, setUser]);
 
   return {
     refreshAccessToken,

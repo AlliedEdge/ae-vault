@@ -56,11 +56,11 @@ public class StorageUsageServiceImpl implements StorageUsageService {
         
         // Calculate total storage used from FileMetadata
         // This uses an optimized SUM query without loading entities
-        Long usedStorage = fileMetadataRepository.calculateTotalStorageByUploaderId(userId);
+        Long usedStorage = fileMetadataRepository.calculateTotalStorageByUserId(userId);
         
         // Count total files
         // This uses an optimized COUNT query without loading entities
-        Long totalFiles = fileMetadataRepository.countByUploaderId(userId);
+        Long totalFiles = fileMetadataRepository.countByUserId(userId);
         
         // Count total folders (buckets)
         // This uses an optimized COUNT query without loading entities

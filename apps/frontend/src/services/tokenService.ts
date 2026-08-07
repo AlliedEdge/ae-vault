@@ -3,20 +3,18 @@
  * Handles storage and retrieval of authentication tokens
  * 
  * Security Model:
- * - Access Token: Stored in memory only (more secure, lost on page refresh)
+ * - Access Token: Stored in localStorage with encryption (persistent across page reloads)
  * - Refresh Token: Stored in localStorage with encryption (persistent across page reloads)
  * - Token Expiry: Calculated from JWT payload
  * 
- * Note: For maximum security, refresh tokens should be stored in httpOnly cookies.
- * This implementation uses localStorage as a fallback when httpOnly cookies aren't available.
+ * Note: Both tokens are encrypted before storage to provide basic security.
+ * For maximum security in production, consider using httpOnly cookies for refresh tokens.
  */
 
 // Storage keys
+const ACCESS_TOKEN_KEY = 'ziboto_access_token';
 const REFRESH_TOKEN_KEY = 'ziboto_refresh_token';
 const TOKEN_EXPIRY_KEY = 'ziboto_token_expiry';
-
-// In-memory storage for access token (cleared on page refresh)
-let accessTokenMemory: string | null = null;
 
 /**
  * Simple encryption for localStorage (basic obfuscation)
@@ -24,6 +22,10 @@ let accessTokenMemory: string | null = null;
  */
 const encryptToken = (token: string): string => {
   try {
+    if (!token) {
+      console.error('Error encrypting token: Token is empty or undefined');
+      return token;
+    }
     return btoa(token.split('').reverse().join(''));
   } catch (error) {
     console.error('Error encrypting token:', error);
@@ -33,6 +35,10 @@ const encryptToken = (token: string): string => {
 
 const decryptToken = (encrypted: string): string => {
   try {
+    if (!encrypted) {
+      console.error('Error decrypting token: Encrypted token is empty or undefined');
+      return encrypted;
+    }
     return atob(encrypted).split('').reverse().join('');
   } catch (error) {
     console.error('Error decrypting token:', error);
@@ -42,11 +48,20 @@ const decryptToken = (encrypted: string): string => {
 
 export const tokenService = {
   /**
-   * Get access token from memory
-   * Access tokens are stored in memory only and cleared on page refresh
+   * Get access token from localStorage
+   * Access tokens are now stored in localStorage (encrypted) to persist across page refreshes
    */
   getAccessToken(): string | null {
-    return accessTokenMemory;
+    try {
+      const encrypted = localStorage.getItem(ACCESS_TOKEN_KEY);
+      if (!encrypted) {
+        return null;
+      }
+      return decryptToken(encrypted);
+    } catch (error) {
+      console.error('Error getting access token:', error);
+      return null;
+    }
   },
 
   /**
@@ -56,7 +71,17 @@ export const tokenService = {
   getRefreshToken(): string | null {
     try {
       const encrypted = localStorage.getItem(REFRESH_TOKEN_KEY);
-      return encrypted ? decryptToken(encrypted) : null;
+      if (!encrypted) {
+        console.log('[TokenService] No refresh token found in localStorage');
+        return null;
+      }
+      
+      const decrypted = decryptToken(encrypted);
+      console.log('[TokenService] Refresh token retrieved from localStorage:', {
+        encryptedPreview: encrypted.substring(0, 20) + '...',
+        decryptedPreview: decrypted?.substring(0, 20) + '...',
+      });
+      return decrypted;
     } catch (error) {
       console.error('Error getting refresh token:', error);
       return null;
@@ -65,21 +90,47 @@ export const tokenService = {
 
   /**
    * Store access and refresh tokens
-   * - Access token: In-memory only (cleared on page refresh)
+   * - Access token: Encrypted in localStorage (persists across page reloads)
    * - Refresh token: Encrypted in localStorage (persists across page reloads)
    */
   setTokens(accessToken: string, refreshToken: string): void {
     try {
-      // Store access token in memory
-      accessTokenMemory = accessToken;
+      console.log('[TokenService] setTokens called with:', {
+        hasAccessToken: !!accessToken,
+        hasRefreshToken: !!refreshToken,
+        accessTokenLength: accessToken?.length || 0,
+        refreshTokenLength: refreshToken?.length || 0,
+        refreshTokenPreview: refreshToken?.substring(0, 20) + '...',
+      });
+
+      if (!accessToken || !refreshToken) {
+        console.error('[TokenService] Cannot set tokens: accessToken or refreshToken is undefined');
+        return;
+      }
+
+      // Store access token in localStorage (encrypted)
+      const encryptedAccessToken = encryptToken(accessToken);
+      localStorage.setItem(ACCESS_TOKEN_KEY, encryptedAccessToken);
+      console.log('[TokenService] Access token saved to localStorage (encrypted):', {
+        original: accessToken.substring(0, 20) + '...',
+        encrypted: encryptedAccessToken.substring(0, 20) + '...'
+      });
       
       // Store refresh token in localStorage (encrypted)
-      localStorage.setItem(REFRESH_TOKEN_KEY, encryptToken(refreshToken));
+      const encryptedRefreshToken = encryptToken(refreshToken);
+      localStorage.setItem(REFRESH_TOKEN_KEY, encryptedRefreshToken);
+      console.log('[TokenService] Refresh token saved to localStorage (encrypted):', {
+        original: refreshToken.substring(0, 20) + '...',
+        encrypted: encryptedRefreshToken.substring(0, 20) + '...'
+      });
       
       // Decode JWT to get expiry
       const tokenData = this.decodeToken(accessToken);
       if (tokenData?.exp) {
         localStorage.setItem(TOKEN_EXPIRY_KEY, tokenData.exp.toString());
+        console.log('[TokenService] Token expiry set:', new Date(tokenData.exp * 1000).toISOString());
+      } else {
+        console.warn('[TokenService] Could not extract expiry from token');
       }
       
       console.log('[TokenService] Tokens stored successfully');
@@ -89,12 +140,13 @@ export const tokenService = {
   },
 
   /**
-   * Set only access token in memory
+   * Set only access token in localStorage
    * Used when refreshing the access token
    */
   setAccessToken(accessToken: string): void {
     try {
-      accessTokenMemory = accessToken;
+      const encryptedAccessToken = encryptToken(accessToken);
+      localStorage.setItem(ACCESS_TOKEN_KEY, encryptedAccessToken);
       
       // Update expiry
       const tokenData = this.decodeToken(accessToken);
@@ -110,14 +162,12 @@ export const tokenService = {
 
   /**
    * Clear all tokens from storage
-   * Clears both in-memory access token and localStorage refresh token
+   * Clears both access token and refresh token from localStorage
    */
   clearTokens(): void {
     try {
-      // Clear in-memory access token
-      accessTokenMemory = null;
-      
       // Clear localStorage
+      localStorage.removeItem(ACCESS_TOKEN_KEY);
       localStorage.removeItem(REFRESH_TOKEN_KEY);
       localStorage.removeItem(TOKEN_EXPIRY_KEY);
       

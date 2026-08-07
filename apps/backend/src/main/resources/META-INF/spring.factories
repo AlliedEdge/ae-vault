@@ -1,0 +1,2 @@
+org.springframework.context.ApplicationContextInitializer=\
+com.ziboto.backend.config.DotenvConfig

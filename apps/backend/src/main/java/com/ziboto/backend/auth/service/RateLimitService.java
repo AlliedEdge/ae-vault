@@ -209,10 +209,22 @@ public class RateLimitService {
      * @return true if rate limit exceeded
      */
     private boolean isRateLimitExceeded(String key, int maxAttempts, Duration window) {
-        Long count = (Long) redisService.get(key);
-        if (count == null) {
+        Object countObj = redisService.get(key);
+        if (countObj == null) {
             return false;
         }
+        
+        // Handle both Integer and Long from Redis
+        long count;
+        if (countObj instanceof Integer) {
+            count = ((Integer) countObj).longValue();
+        } else if (countObj instanceof Long) {
+            count = (Long) countObj;
+        } else {
+            log.warn("Unexpected type from Redis for key {}: {}", key, countObj.getClass());
+            return false;
+        }
+        
         boolean exceeded = count >= maxAttempts;
         if (exceeded) {
             log.warn("Rate limit exceeded for key: {} - attempts: {}/{}", key, count, maxAttempts);

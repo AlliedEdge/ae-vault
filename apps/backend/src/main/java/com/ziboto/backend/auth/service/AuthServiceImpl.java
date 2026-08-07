@@ -207,7 +207,8 @@ public class AuthServiceImpl implements AuthService {
             // 1. Validate request
             validateLoginRequest(request);
             
-            // 2. Redis Rate Limit Check
+            // 2. Redis Rate Limit Check - DISABLED FOR DEVELOPMENT
+            /*
             if (rateLimitService.isLoginRateLimitExceeded(identifier)) {
                 long resetTime = rateLimitService.getLoginRateLimitResetTime(identifier);
                 log.warn("Login rate limit exceeded - identifier: {}, reset in: {}s", identifier, resetTime);
@@ -215,8 +216,10 @@ public class AuthServiceImpl implements AuthService {
                         "Too many login attempts. Please try again in " + resetTime + " seconds."
                 );
             }
+            */
             
-            // 3. Redis Failed Login Check
+            // 3. Redis Failed Login Check - DISABLED FOR DEVELOPMENT
+            /*
             if (failedLoginAttemptService.isLocked(identifier)) {
                 long unlockTime = failedLoginAttemptService.getLockoutRemainingTime(identifier);
                 log.warn("Account locked - identifier: {}, unlock in: {}s", identifier, unlockTime);
@@ -225,9 +228,10 @@ public class AuthServiceImpl implements AuthService {
                         "Please try again in " + unlockTime + " seconds."
                 );
             }
+            */
             
-            // Record rate limit attempt
-            rateLimitService.recordLoginAttempt(identifier);
+            // Record rate limit attempt - DISABLED FOR DEVELOPMENT
+            // rateLimitService.recordLoginAttempt(identifier);
             
             // 4. Retrieve User from PostgreSQL
             User user = userRepository.findByUsernameOrEmail(identifier, identifier)
@@ -291,9 +295,9 @@ public class AuthServiceImpl implements AuthService {
                     String.format("Successful login from IP: %s", ipAddress)
             );
             
-            // 12. Reset security counters on successful login
-            rateLimitService.resetLoginRateLimit(identifier);
-            failedLoginAttemptService.resetFailedAttempts(identifier);
+            // 12. Reset security counters on successful login - DISABLED FOR DEVELOPMENT
+            // rateLimitService.resetLoginRateLimit(identifier);
+            // failedLoginAttemptService.resetFailedAttempts(identifier);
             
             log.info("Login successful - user: {}, IP: {}", user.getUsername(), ipAddress);
             
@@ -370,7 +374,8 @@ public class AuthServiceImpl implements AuthService {
             User user = userRepository.findByUsername(username)
                     .orElseThrow(() -> new ResourceNotFoundException("User not found"));
             
-            // 6. Check refresh rate limit
+            // 6. Check refresh rate limit - DISABLED FOR DEVELOPMENT
+            /*
             if (rateLimitService.isRefreshRateLimitExceeded(user.getId())) {
                 log.warn("Refresh rate limit exceeded - user: {}", username);
                 throw new RateLimitExceededException(
@@ -379,6 +384,7 @@ public class AuthServiceImpl implements AuthService {
             }
             
             rateLimitService.recordRefreshAttempt(user.getId());
+            */
             
             // 7. Validate refresh token against stored hashed tokens
             RefreshToken storedToken = refreshTokenService.validateRefreshToken(
@@ -600,7 +606,8 @@ public class AuthServiceImpl implements AuthService {
     }
     
     private void handleFailedLogin(String identifier, String ipAddress) {
-        // Record failed attempt
+        // Record failed attempt - DISABLED FOR DEVELOPMENT
+        /*
         failedLoginAttemptService.recordFailedAttempt(identifier);
         
         int remainingAttempts = failedLoginAttemptService.getRemainingAttempts(identifier);
@@ -618,6 +625,11 @@ public class AuthServiceImpl implements AuthService {
                     "Please try again in 30 minutes."
             );
         }
+        */
+        
+        // Development mode - just log the failed attempt
+        log.warn("Failed login attempt - identifier: {}, IP: {} (rate limiting disabled)", 
+                identifier, ipAddress);
     }
     
     private String extractDeviceInfo(String userAgent) {

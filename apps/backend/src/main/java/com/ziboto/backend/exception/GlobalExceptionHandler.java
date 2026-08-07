@@ -569,6 +569,31 @@ public class GlobalExceptionHandler {
     // ==================== HTTP Exceptions ====================
     
     /**
+     * Handle optimistic locking failures.
+     * This occurs when multiple requests try to update the same entity concurrently.
+     * 
+     * @param ex the exception
+     * @param request web request
+     * @return error response with 409 status
+     */
+    @ExceptionHandler(org.springframework.orm.ObjectOptimisticLockingFailureException.class)
+    public ResponseEntity<ApiResponse<Object>> handleOptimisticLockingFailureException(
+            org.springframework.orm.ObjectOptimisticLockingFailureException ex,
+            WebRequest request) {
+        
+        String path = getRequestPath(request);
+        log.error("Optimistic locking failure - Path: {}, Message: {}", path, ex.getMessage(), ex);
+        
+        ApiResponse<Object> response = ApiResponse.error(
+                "The operation could not be completed due to a concurrent update. Please try again."
+        );
+        
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(response);
+    }
+    
+    /**
      * Handle method not allowed exceptions.
      * 
      * @param ex the exception

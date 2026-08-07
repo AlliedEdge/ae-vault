@@ -25,6 +25,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [sessionCheckInterval, setSessionCheckInterval] = useState<ReturnType<typeof setInterval> | null>(null);
   
   // Initialize token refresh hook for automatic session restoration
+  // This must happen BEFORE we check auth status
   useTokenRefresh();
   
   const {
@@ -49,6 +50,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   /**
    * Setup session expiration check
+   * DISABLED FOR DEVELOPMENT - Re-enable in production
    */
   useEffect(() => {
     if (!isAuthenticated) {
@@ -60,43 +62,44 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       return;
     }
 
+    // DISABLED FOR DEVELOPMENT
     // Check session every minute
-    const interval = setInterval(() => {
-      if (tokenService.isTokenExpired()) {
-        handleSessionExpired();
-      }
-    }, 60 * 1000); // Check every 60 seconds
+    // const interval = setInterval(() => {
+    //   if (tokenService.isTokenExpired()) {
+    //     handleSessionExpired();
+    //   }
+    // }, 60 * 1000); // Check every 60 seconds
 
-    setSessionCheckInterval(interval);
+    // setSessionCheckInterval(interval);
 
     return () => {
-      if (interval) {
-        clearInterval(interval);
+      if (sessionCheckInterval) {
+        clearInterval(sessionCheckInterval);
       }
     };
   }, [isAuthenticated]);
 
   /**
    * Setup auto-logout timer based on token expiry
+   * DISABLED FOR DEVELOPMENT - Re-enable in production
    */
   useEffect(() => {
     if (!isAuthenticated) return;
 
-    const timeUntilExpiry = tokenService.getTimeUntilExpiry();
+    // DISABLED FOR DEVELOPMENT
+    // const timeUntilExpiry = tokenService.getTimeUntilExpiry();
     
-    if (timeUntilExpiry <= 0) {
-      handleSessionExpired();
-      return;
-    }
+    // // Only set timeout if there's significant time remaining (more than 1 minute)
+    // if (timeUntilExpiry > 60 * 1000) {
+    //   // Set timeout to auto-logout when token expires
+    //   const timeout = setTimeout(() => {
+    //     handleSessionExpired();
+    //   }, timeUntilExpiry);
 
-    // Set timeout to auto-logout when token expires
-    const timeout = setTimeout(() => {
-      handleSessionExpired();
-    }, timeUntilExpiry);
-
-    return () => {
-      clearTimeout(timeout);
-    };
+    //   return () => {
+    //     clearTimeout(timeout);
+    //   };
+    // }
   }, [isAuthenticated, user]);
 
   /**

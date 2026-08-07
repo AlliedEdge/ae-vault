@@ -16,6 +16,7 @@ import type {
   ForgotPasswordRequestDto,
   ResetPasswordRequestDto,
   RetryConfig,
+  ApiResponse,
 } from '../types/api.types';
 import { DEFAULT_RETRY_CONFIG } from '../types/api.types';
 
@@ -64,7 +65,7 @@ export const authService = {
     try {
       const response = await withRetry(
         async () => {
-          return axios.post<AuthResponseDto>('/auth/login', {
+          return axios.post<ApiResponse<AuthResponseDto>>('/auth/login', {
             usernameOrEmail: credentials.usernameOrEmail,
             password: credentials.password,
           });
@@ -72,7 +73,8 @@ export const authService = {
         AUTH_RETRY_CONFIG
       );
 
-      return response.data;
+      // Backend returns ApiResponse<AuthResponseDto>, so we need to unwrap it
+      return response.data.data;
     } catch (error: any) {
       logError(error, 'authService.login', { usernameOrEmail: credentials.usernameOrEmail });
       throw normalizeError(error);
@@ -87,7 +89,7 @@ export const authService = {
     try {
       const response = await withRetry(
         async () => {
-          return axios.post<AuthResponseDto>('/auth/register', {
+          return axios.post<ApiResponse<AuthResponseDto>>('/auth/register', {
             username: data.username,
             email: data.email,
             password: data.password,
@@ -98,7 +100,8 @@ export const authService = {
         AUTH_RETRY_CONFIG
       );
 
-      return response.data;
+      // Backend returns ApiResponse<AuthResponseDto>, so we need to unwrap it
+      return response.data.data;
     } catch (error: any) {
       logError(error, 'authService.register', { email: data.email });
       throw normalizeError(error);
@@ -125,11 +128,12 @@ export const authService = {
    */
   async refreshToken(refreshToken: string): Promise<RefreshTokenResponseDto> {
     try {
-      const response = await axios.post<RefreshTokenResponseDto>('/auth/refresh', {
+      const response = await axios.post<ApiResponse<RefreshTokenResponseDto>>('/auth/refresh', {
         refreshToken,
       });
 
-      return response.data;
+      // Backend returns ApiResponse<RefreshTokenResponseDto>, so we need to unwrap it
+      return response.data.data;
     } catch (error: any) {
       logError(error, 'authService.refreshToken');
       throw normalizeError(error);
@@ -144,7 +148,7 @@ export const authService = {
     try {
       const response = await withRetry(
         async () => {
-          return axios.get<UserProfileResponseDto>('/users/me');
+          return axios.get<ApiResponse<UserProfileResponseDto>>('/users/me');
         },
         {
           ...AUTH_RETRY_CONFIG,
@@ -152,7 +156,8 @@ export const authService = {
         }
       );
 
-      return response.data;
+      // Backend returns ApiResponse<UserProfileResponseDto>, so we need to unwrap it
+      return response.data.data;
     } catch (error: any) {
       logError(error, 'authService.getProfile');
       throw normalizeError(error);
@@ -167,14 +172,15 @@ export const authService = {
     try {
       const response = await withRetry(
         async () => {
-          return axios.post<MessageResponseDto>('/auth/forgot-password', {
+          return axios.post<ApiResponse<MessageResponseDto>>('/auth/forgot-password', {
             email: data.email,
           });
         },
         AUTH_RETRY_CONFIG
       );
 
-      return response.data;
+      // Backend returns ApiResponse<MessageResponseDto>, so we need to unwrap it
+      return response.data.data;
     } catch (error: any) {
       logError(error, 'authService.forgotPassword', { email: data.email });
       throw normalizeError(error);
@@ -187,12 +193,13 @@ export const authService = {
    */
   async resetPassword(data: ResetPasswordRequestDto): Promise<MessageResponseDto> {
     try {
-      const response = await axios.post<MessageResponseDto>('/auth/reset-password', {
+      const response = await axios.post<ApiResponse<MessageResponseDto>>('/auth/reset-password', {
         token: data.token,
         newPassword: data.newPassword,
       });
 
-      return response.data;
+      // Backend returns ApiResponse<MessageResponseDto>, so we need to unwrap it
+      return response.data.data;
     } catch (error: any) {
       logError(error, 'authService.resetPassword');
       throw normalizeError(error);
@@ -205,11 +212,12 @@ export const authService = {
    */
   async verifyEmail(token: string): Promise<MessageResponseDto> {
     try {
-      const response = await axios.post<MessageResponseDto>('/auth/verify-email', {
+      const response = await axios.post<ApiResponse<MessageResponseDto>>('/auth/verify-email', {
         token,
       });
 
-      return response.data;
+      // Backend returns ApiResponse<MessageResponseDto>, so we need to unwrap it
+      return response.data.data;
     } catch (error: any) {
       logError(error, 'authService.verifyEmail');
       throw normalizeError(error);
@@ -224,14 +232,15 @@ export const authService = {
     try {
       const response = await withRetry(
         async () => {
-          return axios.post<MessageResponseDto>('/auth/resend-verification', {
+          return axios.post<ApiResponse<MessageResponseDto>>('/auth/resend-verification', {
             email,
           });
         },
         AUTH_RETRY_CONFIG
       );
 
-      return response.data;
+      // Backend returns ApiResponse<MessageResponseDto>, so we need to unwrap it
+      return response.data.data;
     } catch (error: any) {
       logError(error, 'authService.resendVerification', { email });
       throw normalizeError(error);

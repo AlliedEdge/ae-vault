@@ -81,23 +81,20 @@ const InitializingApp = () => {
         throw new Error('User data not available');
       }
 
-      // Step 3-5: Fetch all required data
-      setCurrentStep('fetching-storage');
-      await new Promise((resolve) => setTimeout(resolve, 200));
-
-      setCurrentStep('fetching-files');
-      await new Promise((resolve) => setTimeout(resolve, 200));
-
-      setCurrentStep('fetching-workspace');
-      
-      // Fetch all data in parallel
-      const data = await appInitService.initializeAppWithRetry(user, 3);
-      
-      setInitData(data);
+      // Skip fetching additional data for now (endpoints not implemented yet)
+      // TODO: Re-enable when backend endpoints are ready
+      // setCurrentStep('fetching-storage');
+      // setCurrentStep('fetching-files');
+      // setCurrentStep('fetching-workspace');
+      // const data = await appInitService.initializeAppWithRetry(user, 3);
+      // setInitData(data);
       
       // Step 6: Complete
       setCurrentStep('complete');
-      await new Promise((resolve) => setTimeout(resolve, 500)); // Show completion
+      await new Promise((resolve) => setTimeout(resolve, 300)); // Show completion
+
+      // Redirect to File Manager after successful initialization
+      navigate('/files', { replace: true });
 
     } catch (err: any) {
       console.error('Initialization error:', err);
@@ -125,18 +122,13 @@ const InitializingApp = () => {
     );
   }
 
-  // Show loading during initialization
-  if (currentStep !== 'complete' || !initData) {
-    return (
-      <LoadingScreen
-        message={STEP_MESSAGES[currentStep]}
-        progress={STEP_PROGRESS[currentStep]}
-      />
-    );
-  }
-
-  // Show dashboard after initialization is complete
-  return <Dashboard initData={initData} />;
+  // Show loading during initialization (including after complete, until navigation happens)
+  return (
+    <LoadingScreen
+      message={STEP_MESSAGES[currentStep === 'complete' ? 'complete' : currentStep]}
+      progress={STEP_PROGRESS[currentStep === 'complete' ? 'complete' : currentStep]}
+    />
+  );
 };
 
 export default InitializingApp;
